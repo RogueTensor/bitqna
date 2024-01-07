@@ -10,16 +10,23 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         #chat-container {
             background-color: white;
+            width: 100%;
             max-width: 600px;
-            margin: auto;
+            margin: 20px;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 400px;
         }
         .chat-message {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -27,11 +34,20 @@
         .user-message {
             text-align: right;
         }
-        #input-area {
-            margin-bottom: 20px;
-        }
         .response-output {
             color: green;
+        }
+        #input-area {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -42,35 +58,39 @@
     <div id="input-area">
         <textarea id="data-input" placeholder="Enter your data here"></textarea>
         <input type="text" id="question-input" placeholder="Enter your question">
+        <button onclick="addTextArea()">Add More Data</button>
         <button onclick="submitRequest()">Submit</button>
     </div>
 
     <script>
+        function addTextArea() {
+            var newTextArea = document.createElement('textarea');
+            newTextArea.placeholder = "Enter additional data";
+            document.getElementById('input-area').insertBefore(newTextArea, document.getElementById('question-input'));
+        }
+
         function submitRequest() {
-            var data = document.getElementById('data-input').value;
+            var dataInputs = document.querySelectorAll('#input-area textarea');
+            var datas = Array.from(dataInputs).map(input => input.value);
             var question = document.getElementById('question-input').value;
-        
-            // Add user message to chat
+
             addChatMessage("User", question);
-        
-            // AJAX request to the server
+
             var xhr = new XMLHttpRequest();
-            var url = "http://192.168.69.125:5000/llm/" + encodeURIComponent(question);
+            var url = "http://<ip>:5000/llm/" + encodeURIComponent(question);
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Handle response
                     var response = JSON.parse(xhr.responseText);
                     response.forEach(function(item) {
-                        addChatMessage("BitQnA", item.message); // Assuming 'message' is the key in your response objects
+                        addChatMessage("BitQnA", item.message);
                     });
                 }
             };
-            var dataToSend = JSON.stringify({ datas: [data] }); // Assuming the data to be sent as an array
+            var dataToSend = JSON.stringify({ datas: datas });
             xhr.send(dataToSend);
         }
-
 
         function addChatMessage(sender, message) {
             var chatContainer = document.getElementById('chat-container');
