@@ -1,1 +1,89 @@
-Starting page ... testing
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        #chat-container {
+            background-color: white;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .user-message {
+            text-align: right;
+        }
+        #input-area {
+            margin-bottom: 20px;
+        }
+        .response-output {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <!-- Dynamic chat content will be added here -->
+    </div>
+    <div id="input-area">
+        <textarea id="data-input" placeholder="Enter your data here"></textarea>
+        <input type="text" id="question-input" placeholder="Enter your question">
+        <button onclick="submitRequest()">Submit</button>
+    </div>
+
+    <script>
+        function submitRequest() {
+            var data = document.getElementById('data-input').value;
+            var question = document.getElementById('question-input').value;
+        
+            // Add user message to chat
+            addChatMessage("User", question);
+        
+            // AJAX request to the server
+            var xhr = new XMLHttpRequest();
+            var url = "http://192.168.69.125:5000/llm/" + encodeURIComponent(question);
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Handle response
+                    var response = JSON.parse(xhr.responseText);
+                    response.forEach(function(item) {
+                        addChatMessage("BitQnA", item.message); // Assuming 'message' is the key in your response objects
+                    });
+                }
+            };
+            var dataToSend = JSON.stringify({ datas: [data] }); // Assuming the data to be sent as an array
+            xhr.send(dataToSend);
+        }
+
+
+        function addChatMessage(sender, message) {
+            var chatContainer = document.getElementById('chat-container');
+            var messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message');
+            if (sender === "User") {
+                messageDiv.classList.add('user-message');
+            } else {
+                messageDiv.classList.add('response-output');
+            }
+            messageDiv.textContent = sender + ": " + message;
+            chatContainer.appendChild(messageDiv);
+        }
+    </script>
+</body>
+</html>
