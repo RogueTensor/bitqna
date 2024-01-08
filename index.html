@@ -77,7 +77,7 @@
             addChatMessage("User", question);
 
             var xhr = new XMLHttpRequest();
-            var url = "http://192.150.253.122:5000/llm/" + encodeURIComponent(question);
+            var url = "https://192.150.253.122:5000/llm/" + encodeURIComponent(question);
             xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
